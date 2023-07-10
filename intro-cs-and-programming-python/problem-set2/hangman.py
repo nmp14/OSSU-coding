@@ -61,8 +61,8 @@ def is_word_guessed(secret_word, letters_guessed):
       False otherwise
     '''
     # FILL IN YOUR CODE HERE AND DELETE "pass"
-    for letter in letters_guessed:
-        if not secret_word.contains(letter):
+    for letter in secret_word:
+        if not letter in letters_guessed:
             return False;
     return True;
 
@@ -97,6 +97,17 @@ def get_available_letters(letters_guessed):
         allLetters = allLetters.replace(letter, '');
     return allLetters;
 
+def calc_score(secret_word, guessesRemaining):
+    uniqueCount = set();
+    for letter in secret_word:
+        uniqueCount.add(letter);
+    return str(len(uniqueCount) * guessesRemaining);
+
+def is_letter_in_word(secret_word, letter):
+    if letter in secret_word:
+        return True;
+    return False;
+
 def hangman(secret_word):
     '''
     secret_word: string, the secret word to guess.
@@ -123,7 +134,53 @@ def hangman(secret_word):
     Follows the other limitations detailed in the problem write-up.
     '''
     # FILL IN YOUR CODE HERE AND DELETE "pass"
-    pass
+    warnings = 3;
+    guessesRemaining = 6;
+    guessedLetters = [];
+
+    print('\n\nWelcome to Hangman!');
+    print('I am thinking of a word that is', len(secret_word), 'letters long');
+
+    while (True):
+        if guessesRemaining < 1:
+            print('You have 0 guesses remaining, you lose!');
+            print('The word was ' + secret_word);
+            exit(0);
+        
+        print('\n ------ \n');
+        print('You have', guessesRemaining, 'guesses left.');
+        print('You have', warnings, 'warnings left.');
+        print(get_available_letters(guessedLetters));
+        letterGuessed = input("Enter single letter to guess: ");
+
+        # Determine if single char that is part of alphabet. If not reduce warning. If 0 warning left, reduce guesses.
+        if not string.ascii_lowercase.find(letterGuessed.lower()) >= 0 or letterGuessed in guessedLetters:
+            if warnings > 0:
+                warnings -= 1;
+                print('Oops! That is not a valid letter. You have', warnings, 'left.');
+            elif warnings < 1:
+                print('Oops! That is not a valid letter.');
+                print('Out of warning so reducing guesses by one');
+                guessesRemaining -= 1;
+                continue;
+        
+        guessedLetters.append(letterGuessed);
+
+        goodGuess = is_letter_in_word(secret_word, letterGuessed);
+        guessedWord = get_guessed_word(secret_word, guessedLetters);
+
+        if goodGuess:
+            print('Good guess: ' + guessedWord);
+        else:
+            print('Oops! That letter is not in my word: ' + guessedWord);
+            guessesRemaining -= 1;
+        
+        if is_word_guessed(secret_word, guessedLetters):
+            print('----------');
+            print('Congratulations, you won! The word was ' + secret_word);
+            print('Your total score for this game is: ' + calc_score(secret_word, guessesRemaining));
+            exit(0);
+
 
 
 
